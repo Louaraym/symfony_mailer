@@ -6,7 +6,6 @@ use App\Repository\CommentRepository;
 use App\Service\UploaderHelper;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Gedmo\Timestampable\Traits\TimestampableEntity;
@@ -173,7 +172,7 @@ class Article
 
     public function incrementHeartCount(): self
     {
-        $this->heartCount = $this->heartCount + 1;
+        ++$this->heartCount;
 
         return $this;
     }
@@ -190,7 +189,7 @@ class Article
         return $this;
     }
 
-    public function getImagePath()
+    public function getImagePath(): string
     {
         return UploaderHelper::ARTICLE_IMAGE.'/'.$this->getImageFilename();
     }
@@ -276,8 +275,10 @@ class Article
 
     /**
      * @Assert\Callback
+     * @param ExecutionContextInterface $context
+     * @param $payload
      */
-    public function validate(ExecutionContextInterface $context, $payload)
+    public function validate(ExecutionContextInterface $context, $payload): void
     {
         if (stripos($this->getTitle(), 'the borg') !== false) {
             $context->buildViolation('Um.. the Bork kinda makes us nervous')

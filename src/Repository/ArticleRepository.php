@@ -3,8 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\Article;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Exception;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -23,7 +25,7 @@ class ArticleRepository extends ServiceEntityRepository
     /**
      * @return Article[]
      */
-    public function findAllPublishedOrderedByNewest()
+    public function findAllPublishedOrderedByNewest(): array
     {
         return $this->addIsPublishedQueryBuilder()
             ->leftJoin('a.tags', 't')
@@ -32,6 +34,22 @@ class ArticleRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult()
         ;
+    }
+
+    /**
+     * @param User $author
+     * @return Article[]
+     * @throws Exception
+     */
+    public function findAllPublishedLastWeekByAuthor(User $author): array
+    {
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.author = :author')
+            ->andWhere('a.publishedAt > :week_ago')
+            ->setParameter('author', $author)
+            ->setParameter('week_ago', new \DateTime('-1 week'))
+            ->getQuery()
+            ->getResult();
     }
 
     /*
@@ -46,13 +64,13 @@ class ArticleRepository extends ServiceEntityRepository
     }
     */
 
-    private function addIsPublishedQueryBuilder(QueryBuilder $qb = null)
+    private function addIsPublishedQueryBuilder(QueryBuilder $qb = null): QueryBuilder
     {
         return $this->getOrCreateQueryBuilder($qb)
             ->andWhere('a.publishedAt IS NOT NULL');
     }
 
-    private function getOrCreateQueryBuilder(QueryBuilder $qb = null)
+    private function getOrCreateQueryBuilder(QueryBuilder $qb = null): QueryBuilder
     {
         return $qb ?: $this->createQueryBuilder('a');
     }

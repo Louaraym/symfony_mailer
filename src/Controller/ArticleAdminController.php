@@ -7,10 +7,10 @@ use App\Form\ArticleFormType;
 use App\Repository\ArticleRepository;
 use App\Service\UploaderHelper;
 use Doctrine\ORM\EntityManagerInterface;
-use Gedmo\Sluggable\Util\Urlizer;
+use Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -20,6 +20,11 @@ class ArticleAdminController extends BaseController
     /**
      * @Route("/admin/article/new", name="admin_article_new")
      * @IsGranted("ROLE_ADMIN_ARTICLE")
+     * @param EntityManagerInterface $em
+     * @param Request $request
+     * @param UploaderHelper $uploaderHelper
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function new(EntityManagerInterface $em, Request $request, UploaderHelper $uploaderHelper)
     {
@@ -54,6 +59,12 @@ class ArticleAdminController extends BaseController
     /**
      * @Route("/admin/article/{id}/edit", name="admin_article_edit")
      * @IsGranted("MANAGE", subject="article")
+     * @param Article $article
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param UploaderHelper $uploaderHelper
+     * @return RedirectResponse|Response
+     * @throws Exception
      */
     public function edit(Article $article, Request $request, EntityManagerInterface $em, UploaderHelper $uploaderHelper)
     {
@@ -89,8 +100,10 @@ class ArticleAdminController extends BaseController
     /**
      * @Route("/admin/article/location-select", name="admin_article_location_select")
      * @IsGranted("ROLE_USER")
+     * @param Request $request
+     * @return Response
      */
-    public function getSpecificLocationSelect(Request $request)
+    public function getSpecificLocationSelect(Request $request): Response
     {
         // a custom security check
         if (!$this->isGranted('ROLE_ADMIN_ARTICLE') && $this->getUser()->getArticles()->isEmpty()) {
@@ -114,8 +127,10 @@ class ArticleAdminController extends BaseController
     /**
      * @Route("/admin/article", name="admin_article_list")
      * @IsGranted("ROLE_ADMIN_ARTICLE")
+     * @param ArticleRepository $articleRepo
+     * @return Response
      */
-    public function list(ArticleRepository $articleRepo)
+    public function list(ArticleRepository $articleRepo): Response
     {
         $articles = $articleRepo->findAll();
 

@@ -22,7 +22,7 @@ class UserRepository extends ServiceEntityRepository
     /**
      * @return User[]
      */
-    public function findAllEmailAlphabetical()
+    public function findAllEmailAlphabetical(): array
     {
         return $this->createQueryBuilder('u')
             ->orderBy('u.email', 'ASC')
@@ -32,14 +32,27 @@ class UserRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param string $query
+     * @param int $limit
      * @return User[]
      */
-    public function findAllMatching(string $query, int $limit = 5)
+    public function findAllMatching(string $query, int $limit = 5): array
     {
         return $this->createQueryBuilder('u')
             ->andWhere('u.email LIKE :query')
             ->setParameter('query', '%'.$query.'%')
             ->setMaxResults($limit)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @return User[]
+     */
+    public function findAllSubscribedToNewsletter(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->andWhere('u.subscribeToNewsletter = 1')
             ->getQuery()
             ->getResult();
     }
