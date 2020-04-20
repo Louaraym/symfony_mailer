@@ -27,10 +27,11 @@ class Mailer
         $this->entrypointLookup = $entrypointLookup;
     }
 
+
+
     public function sendWelcomeMessage(User $user): TemplatedEmail
     {
         $email = (new TemplatedEmail())
-            ->from(new NamedAddress('alienmailcarrier@example.com', 'The Space Bar'))
             ->to(new NamedAddress($user->getEmail(), $user->getFirstName()))
             ->subject('Welcome to the Space Bar!')
             ->htmlTemplate('email/welcome.html.twig')
@@ -49,11 +50,11 @@ class Mailer
         $html = $this->twig->render('email/author-weekly-report-pdf.html.twig', [
             'articles' => $articles,
         ]);
+
         $this->entrypointLookup->reset();
         $pdf = $this->pdf->getOutputFromHtml($html);
 
         $email = (new TemplatedEmail())
-            ->from(new NamedAddress('alienmailcarrier@example.com', 'The Space Bar'))
             ->to(new NamedAddress($author->getEmail(), $author->getFirstName()))
             ->subject('Your weekly report on the Space Bar!')
             ->htmlTemplate('email/author-weekly-report.html.twig')
